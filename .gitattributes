@@ -1,0 +1,8 @@
+# Normalize line endings. Files executed inside the Linux dev container
+# (bash scripts, JSON config) must stay LF to avoid CRLF breakage.
+* text=auto
+
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.json  text eol=lf
+*.jsonc text eol=lf
