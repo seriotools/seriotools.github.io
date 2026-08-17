@@ -1,0 +1,47 @@
+# Build the Astro site and deploy it to GitHub Pages on every push to `main`.
+# Uses the official Astro action (https://github.com/withastro/action).
+name: Deploy to GitHub Pages
+
+on:
+  # Trigger the workflow on every push to the default branch
+  push:
+    branches: [main]
+  # Allow running this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Give the job permission to read the repo and write a Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time; newer runs cancel in-progress ones
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Installs dependencies (detects npm from package-lock.json),
+      # runs `npm run build`, and uploads the `dist/` output as a Pages artifact.
+      - name: Install, build, and upload site
+        uses: withastro/action@v6
+        # with:
+        #   path: .            # Root of the Astro project (default: repo root)
+        #   node-version: 24   # Node version used to build (default: 24)
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

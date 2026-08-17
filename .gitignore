@@ -23,6 +23,18 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# --- BMad Method (BMAD) -------------------------------------------------------
+# Installer-owned files — regenerate with: npx bmad-method install
+_bmad/*
+# Keep human-authored team customizations committed
+!_bmad/custom/
+# Personal overrides stay local (never commit)
+_bmad/custom/*.user.toml
+# Generated planning/implementation artifacts
+_bmad-output/
+# Per-run working memory (never commit)
+.memlog.md
+
 # --- Logs -------------------------------------------------------------------
 npm-debug.log*
 yarn-debug.log*
