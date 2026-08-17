@@ -2,12 +2,101 @@
     color-scheme: light dark;
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
+    --bg: #faf8f5;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --accent: #f5a623;
+    --accent-2: #e0568f;
+    --card: rgba(255, 255, 255, 0.72);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #12101c;
+        --text: #eceaf3;
+        --muted: #9a96ad;
+        --card: rgba(255, 255, 255, 0.05);
+    }
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
-    margin: 0 auto;
-    max-width: 40rem;
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
     padding: 2rem 1rem;
+    color: var(--text);
+    background:
+        radial-gradient(60rem 30rem at 120% -10%, color-mix(in srgb, var(--accent) 25%, transparent), transparent),
+        radial-gradient(50rem 25rem at -20% 110%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent),
+        var(--bg);
+}
+
+main {
+    max-width: 42rem;
+    width: 100%;
+    text-align: center;
+}
+
+.hero {
+    padding: 2.5rem 2rem;
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    border-radius: 1.25rem;
+    background: var(--card);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.eyebrow {
+    margin: 0 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(2.5rem, 8vw, 3.75rem);
+    line-height: 1.05;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.tagline {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+}
+
+.tagline strong {
+    color: var(--text);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.chip {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.hint {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--muted);
 }
 
 code {

@@ -8,12 +8,20 @@ const description = 'A very basic Astro 7.2 page, scaffolded with the BMad Metho
 
 <Layout title={title} description={description}>
   <main>
-    <h1>Hello, SerioTools! 👋</h1>
-    <p>
-      This is a very basic page built with <strong>{Astro.generator}</strong>,
-      and the project is scaffolded with the <strong>BMad Method</strong>.
-    </p>
-    <p>
+    <section class="hero">
+      <p class="eyebrow">Welcome to</p>
+      <h1>SerioTools</h1>
+      <p class="tagline">
+        A very basic site built with <strong>{Astro.generator}</strong>, and
+        scaffolded with the <strong>BMad Method</strong>.
+      </p>
+      <div class="chips" aria-label="Tech stack">
+        <span class="chip">⚡ Astro 7</span>
+        <span class="chip">🧭 BMad Method</span>
+        <span class="chip">📄 GitHub Pages</span>
+      </div>
+    </section>
+    <p class="hint">
       Edit <code>src/pages/index.astro</code> to get started.
     </p>
   </main>
