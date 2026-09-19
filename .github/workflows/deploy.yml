@@ -31,9 +31,11 @@ jobs:
       # runs `npm run build`, and uploads the `dist/` output as a Pages artifact.
       - name: Install, build, and upload site
         uses: withastro/action@v6
-        # with:
-        #   path: .            # Root of the Astro project (default: repo root)
-        #   node-version: 24   # Node version used to build (default: 24)
+        with:
+          # Astro 7.3 requires Node >= 22.12; the action still defaults to 24,
+          # so pin 26 to match the dev container toolchain.
+          node-version: 26
+          # path: .          # Root of the Astro project (default: repo root)
 
   deploy:
     needs: build

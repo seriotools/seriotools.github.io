@@ -1,21 +1,24 @@
 # syntax=docker/dockerfile:1.7
 
 # ===========================================================================
-# seriotools.github.io — Astro 7.2 Dev Container image
+# seriotools.github.io — Astro 7.3 Dev Container image
 #
-#   Node.js 24 LTS (Debian trixie — current stable) — official Microsoft devcontainer image
+#   Node.js 26 (Debian trixie — current stable) — official Microsoft devcontainer image
 #   Python 3.14 + uv (Astral)        — prebuilt CPython, no from-source compile
 #
 # Build args (override from devcontainer.json or `docker build`):
-#   VARIANT         Debian/Node variant of the base image   (default 24-trixie)
+#   VARIANT         Debian/Node variant of the base image   (default 26-trixie)
 #   PYTHON_VERSION  CPython version installed via uv        (default 3.14)
 #   UV_VERSION      uv version to install                   (default latest)
+#
+# NOTE: Node 26 images ship under the devcontainer image major line `5`
+#       (line `4` stops at Node 24), hence `javascript-node:5-${VARIANT}`.
 # ===========================================================================
 
-ARG VARIANT=24-trixie
+ARG VARIANT=26-trixie
 ARG PYTHON_VERSION=3.14
 
-FROM mcr.microsoft.com/devcontainers/javascript-node:4-${VARIANT}
+FROM mcr.microsoft.com/devcontainers/javascript-node:5-${VARIANT}
 
 ARG PYTHON_VERSION
 ARG UV_VERSION=latest

@@ -1,38 +1,36 @@
 {
   // ===========================================================================
-  // seriotools.github.io — Astro 7.2 (Node 24 LTS) Dev Container
+  // seriotools.github.io — Astro 7.3 (Node 26) Dev Container
   //
   // Stack:
-  //   - Node.js 24 LTS (Debian trixie — current stable) — official Microsoft devcontainer image
+  //   - Node.js 26 (Debian trixie — current stable) — official Microsoft devcontainer image
   //   - Python 3.14 + uv (Astral)        — uv-managed prebuilt CPython, no source compile
   //   - GitHub CLI (gh)                  — official devcontainer feature
   //   - npm                              — global install dir configured by the base image
   //
   // Runs on Docker Desktop (latest) — the config is also Podman-compatible.
   // ===========================================================================
-  "name": "seriotools.github.io — Astro 7.2 (Node 24 LTS)",
-
+  "name": "seriotools.github.io — Astro 7.3 (Node 26)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".",
     "args": {
-      "VARIANT": "24-trixie",     // Node 24 LTS on Debian 13 (current stable)
-      "PYTHON_VERSION": "3.14",   // CPython installed via uv (prebuilt)
-      "UV_VERSION": "latest"      // pin e.g. "0.12.5" for full reproducibility
+      "VARIANT": "26-trixie", // Node 26 on Debian 13 (current stable)
+      "PYTHON_VERSION": "3.14", // CPython installed via uv (prebuilt)
+      "UV_VERSION": "latest" // pin e.g. "0.12.5" for full reproducibility
     }
   },
-
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "remoteUser": "node",
-
   // Robustness: --init reaps zombie processes; SYS_PTRACE enables debugging
   // (node --inspect, strace, crash analysis).
-  "runArgs": ["--init", "--cap-add=SYS_PTRACE"],
-
+  "runArgs": [
+    "--init",
+    "--cap-add=SYS_PTRACE"
+  ],
   // Persisted, host-independent state:
   //  - node_modules lives in a named volume (avoids Windows<->Linux node_modules mismatch)
   //  - uv cache lives in a named volume (fast rebuilds, no re-downloads)
@@ -40,28 +38,27 @@
     "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
     "source=${localWorkspaceFolderBasename}-uv-cache,target=/opt/uv-cache,type=volume"
   ],
-
   "containerEnv": {
     "ASTRO_TELEMETRY_DISABLED": "1",
     "PYTHONUNBUFFERED": "1"
   },
-
   "shutdownAction": "stopContainer",
-
   // Astro dev server default port (4321) is auto-forwarded.
-  "forwardPorts": [4321],
+  "forwardPorts": [
+    4321
+  ],
   "portsAttributes": {
     "4321": {
       "label": "Astro Dev Server",
       "onAutoForward": "notify"
     }
   },
-
   "postCreateCommand": "bash .devcontainer/scripts/postCreate.sh",
-
   "customizations": {
     "vscode": {
-      "extensions": ["astro-build.astro"],
+      "extensions": [
+        "astro-build.astro"
+      ],
       "settings": {
         "editor.formatOnSave": true,
         "files.eol": "\n",
@@ -71,7 +68,9 @@
         },
         "[typescript]": {
           "editor.defaultFormatter": "vscode.typescript-language-features",
-          "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
         },
         "[javascript]": {
           "editor.defaultFormatter": "vscode.typescript-language-features"

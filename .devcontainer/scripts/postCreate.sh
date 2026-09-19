@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# Post-create setup — Astro 7.2 (Node 24 LTS) Dev Container.
+# Post-create setup — Astro 7.3 (Node 26) Dev Container.
 # Runs once after container creation, as the `node` user.
 # Idempotent — safe to re-run at any time.
 # ===========================================================================
