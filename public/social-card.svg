@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">SerioTools</title>
+  <desc id="desc">Small tools. Serious clarity.</desc>
+  <rect width="1200" height="630" fill="#101820"/>
+  <circle cx="1030" cy="110" r="300" fill="#d8ff55" opacity=".12"/>
+  <path d="M90 107h1020M90 523h1020" stroke="#f4f1ea" opacity=".2"/>
+  <text x="90" y="290" fill="#f4f1ea" font-family="system-ui,sans-serif" font-size="110" font-weight="700">SerioTools</text>
+  <text x="96" y="375" fill="#d8ff55" font-family="system-ui,sans-serif" font-size="42">Small tools. Serious clarity.</text>
+</svg>

@@ -1,28 +1,5 @@
 ---
-// Home page — lives in src/pages/ per the Astro project structure
-import Layout from '../layouts/Layout.astro';
-
-const title = 'SerioTools';
-const description = 'A very basic Astro 7.3 page, scaffolded with the BMad Method.';
+import PageView from '../components/PageView.astro';
 ---
 
-<Layout title={title} description={description}>
-  <main>
-    <section class="hero">
-      <p class="eyebrow">Welcome to</p>
-      <h1>SerioTools</h1>
-      <p class="tagline">
-        A very basic site built with <strong>{Astro.generator}</strong>, and
-        scaffolded with the <strong>BMad Method</strong>.
-      </p>
-      <div class="chips" aria-label="Tech stack">
-        <span class="chip">⚡ Astro 7</span>
-        <span class="chip">🧭 BMad Method</span>
-        <span class="chip">📄 GitHub Pages</span>
-      </div>
-    </section>
-    <p class="hint">
-      Edit <code>src/pages/index.astro</code> to get started.
-    </p>
-  </main>
-</Layout>
+<PageView locale="en" page="home" />

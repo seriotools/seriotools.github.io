@@ -9,13 +9,19 @@
         "build": "astro build",
         "preview": "astro preview",
         "check": "astro check",
+        "verify": "node scripts/verify.mjs",
+        "format:check": "prettier --check astro.config.mjs package.json tsconfig.json prettier.config.mjs 'src/**/*.{astro,ts,css}' 'scripts/*.mjs' '.github/workflows/*.yml'",
         "astro": "astro"
     },
     "dependencies": {
+        "@astrojs/sitemap": "^3.7.4",
         "astro": "^7.3.3"
     },
     "devDependencies": {
         "@astrojs/check": "^0.9.10",
+        "lightningcss": "^1.30.2",
+        "prettier": "^3.6.2",
+        "prettier-plugin-astro": "^1.0.0",
         "typescript": "^6.0.3"
     },
     "allowScripts": {

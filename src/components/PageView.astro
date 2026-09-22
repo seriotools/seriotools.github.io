@@ -1,0 +1,51 @@
+---
+import { content } from '../data/content';
+import { pathFor, type Locale, type PageKey } from '../lib/i18n';
+import Layout from '../layouts/Layout.astro';
+
+interface Props {
+    locale: Locale;
+    page: PageKey;
+}
+
+const { locale, page } = Astro.props;
+const siteCopy = content[locale];
+const copy = siteCopy.pages[page];
+const isHome = page === 'home';
+---
+
+<Layout {locale} {page} title={copy.title} description={copy.description}>
+    <section class:list={['hero', { 'hero-home': isHome }]}>
+        <div class="shell hero-grid">
+            <div>
+                <p class="eyebrow">{copy.eyebrow}</p>
+                <h1>{copy.title}</h1>
+                <p class="lede">{copy.intro}</p>
+                {isHome && (
+                    <a class="button" href={pathFor('services', locale)}>
+                        {siteCopy.cta}
+                        <span aria-hidden="true">→</span>
+                    </a>
+                )}
+            </div>
+            <div class="hero-mark" aria-hidden="true">
+                <span>01</span>
+                <span>02</span>
+                <span>03</span>
+            </div>
+        </div>
+    </section>
+    <section class="content-section" aria-label={copy.title}>
+        <div class="shell card-grid">
+            {copy.sections.map((section, index) => (
+                <article class="content-card">
+                    <span class="card-number" aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h2>{section.title}</h2>
+                    <p>{section.body}</p>
+                </article>
+            ))}
+        </div>
+    </section>
+</Layout>

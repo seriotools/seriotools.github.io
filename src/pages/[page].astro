@@ -1,0 +1,12 @@
+---
+import PageView from '../components/PageView.astro';
+import { staticEnglishPaths, type Locale, type PageKey } from '../lib/i18n';
+
+export function getStaticPaths() {
+    return staticEnglishPaths();
+}
+
+const { locale, page } = Astro.props as { locale: Locale; page: PageKey };
+---
+
+<PageView {locale} {page} />

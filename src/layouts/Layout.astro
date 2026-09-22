@@ -1,28 +1,35 @@
 ---
-// Basic site-wide layout with metadata and global styles
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import SeoHead from '../components/SeoHead.astro';
+import { content } from '../data/content';
+import { languageTags, type Locale, type PageKey } from '../lib/i18n';
 import '../styles/global.css';
 
 interface Props {
-  title?: string;
-  description?: string;
+    locale: Locale;
+    page: PageKey;
+    title: string;
+    description: string;
+    noindex?: boolean;
 }
 
-const {
-  title = 'SerioTools',
-  description = 'Built with Astro 7 and the BMad Method.',
-} = Astro.props;
+const { locale, page, title, description, noindex = false } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
-  </head>
-  <body>
-    <slot />
-  </body>
+<html lang={languageTags[locale]}>
+    <head>
+        <SeoHead {locale} {page} {title} {description} {noindex} />
+    </head>
+    <body>
+        <a class="skip-link" href="#main">
+            {content[locale].skip}
+        </a>
+        <Header {locale} {page} />
+        <main id="main">
+            <slot />
+        </main>
+        <Footer {locale} />
+    </body>
 </html>

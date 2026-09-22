@@ -1,0 +1,10 @@
+{
+    "name": "SerioTools",
+    "short_name": "SerioTools",
+    "description": "A fictional multilingual Astro demonstration.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f4f1ea",
+    "theme_color": "#101820",
+    "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

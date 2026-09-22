@@ -1,49 +1,44 @@
-# Build the Astro site and deploy it to GitHub Pages on every push to `main`.
-# Uses the official Astro action (https://github.com/withastro/action).
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger the workflow on every push to the default branch
-  push:
-    branches: [main]
-  # Allow running this workflow manually from the Actions tab
-  workflow_dispatch:
+    push:
+        branches: [main]
+    workflow_dispatch:
 
-# Give the job permission to read the repo and write a Pages deployment
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
-# Only one deployment at a time; newer runs cancel in-progress ones
 concurrency:
-  group: pages
-  cancel-in-progress: true
+    group: pages
+    cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      # Installs dependencies (detects npm from package-lock.json),
-      # runs `npm run build`, and uploads the `dist/` output as a Pages artifact.
-      - name: Install, build, and upload site
-        uses: withastro/action@v6
-        with:
-          # Astro 7.3 requires Node >= 22.12; the action still defaults to 24,
-          # so pin 26 to match the dev container toolchain.
-          node-version: 26
-          # path: .          # Root of the Astro project (default: repo root)
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: npm
+            - run: npm ci
+            - run: npm run check
+            - run: npm run build
+            - run: npm run verify
+            - run: touch dist/.nojekyll
+            - uses: actions/upload-pages-artifact@v5
+              with:
+                  path: dist
+                  include-hidden-files: true
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v5

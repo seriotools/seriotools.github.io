@@ -1,0 +1,116 @@
+---
+import { content } from '../data/content';
+import { pageKeys, pathFor, type Locale, type PageKey } from '../lib/i18n';
+import LanguageSelector from './LanguageSelector.astro';
+
+interface Props {
+    locale: Locale;
+    page: PageKey;
+}
+
+const { locale, page } = Astro.props;
+const copy = content[locale];
+---
+
+<header class="site-header">
+    <div class="shell header-inner">
+        <a
+            class="brand"
+            href={pathFor('home', locale)}
+            aria-label={`SerioTools — ${copy.nav.home}`}
+        >
+            <svg aria-hidden="true" viewBox="0 0 36 36" width="36" height="36">
+                <path d="M18 2 33 10.5v15L18 34 3 25.5v-15Z" />
+                <path d="m11 18 4 4 10-10" />
+            </svg>
+            <span>SerioTools</span>
+        </a>
+        <nav
+            id="site-navigation"
+            class="main-nav"
+            aria-label={copy.navigationLabel}
+        >
+            <ul>
+                {pageKeys.map((item) => (
+                    <li>
+                        <a
+                            href={pathFor(item, locale)}
+                            aria-current={item === page ? 'page' : undefined}
+                        >
+                            {copy.nav[item]}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+            <div class="mobile-language">
+                <LanguageSelector {locale} {page} label={copy.languageLabel} />
+            </div>
+        </nav>
+        <div class="header-actions">
+            <LanguageSelector {locale} {page} label={copy.languageLabel} />
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="site-navigation"
+                aria-label={copy.openMenu}
+                data-open-label={copy.openMenu}
+                data-close-label={copy.closeMenu}
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<script>
+    document.documentElement.classList.add('js');
+
+    const header = document.querySelector<HTMLElement>('.site-header');
+    const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
+    const navigation = header?.querySelector<HTMLElement>('.main-nav');
+    const compact = matchMedia('(max-width: 48rem)');
+
+    const setMenu = (open: boolean, returnFocus = false) => {
+        if (!toggle || !navigation) return;
+        const isCompact = compact.matches;
+        const expanded = isCompact && open;
+        toggle.setAttribute('aria-expanded', String(expanded));
+        toggle.setAttribute(
+            'aria-label',
+            expanded
+                ? (toggle.dataset.closeLabel ?? '')
+                : (toggle.dataset.openLabel ?? ''),
+        );
+        navigation.classList.toggle('is-open', expanded);
+        navigation.inert = isCompact && !expanded;
+        if (returnFocus) toggle.focus();
+    };
+
+    setMenu(false);
+    toggle?.addEventListener('click', () => {
+        setMenu(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    navigation?.addEventListener('click', (event) => {
+        if ((event.target as Element).closest('a')) setMenu(false);
+    });
+    document.addEventListener('pointerdown', (event) => {
+        if (
+            toggle?.getAttribute('aria-expanded') === 'true' &&
+            !header?.contains(event.target as Node)
+        ) {
+            setMenu(false);
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (
+            event.key === 'Escape' &&
+            toggle?.getAttribute('aria-expanded') === 'true'
+        ) {
+            setMenu(false, true);
+        }
+    });
+    compact.addEventListener('change', () => setMenu(false));
+</script>

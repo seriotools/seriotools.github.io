@@ -1,0 +1,41 @@
+---
+import {
+    languageNames,
+    locales,
+    pathFor,
+    type Locale,
+    type PageKey,
+} from '../lib/i18n';
+
+interface Props {
+    locale: Locale;
+    page: PageKey;
+    label: string;
+}
+
+const { locale, page, label } = Astro.props;
+---
+
+<nav class="language-selector" aria-label={label}>
+    <ul>
+        {locales.map((item, index) => (
+            <li>
+                {index > 0 && <span aria-hidden="true">|</span>}
+                {item === locale ? (
+                    <span aria-current="page" lang={item}>
+                        {item.toUpperCase()}
+                    </span>
+                ) : (
+                    <a
+                        href={pathFor(page, item)}
+                        lang={item}
+                        hreflang={item}
+                        aria-label={languageNames[item]}
+                    >
+                        {item.toUpperCase()}
+                    </a>
+                )}
+            </li>
+        ))}
+    </ul>
+</nav>

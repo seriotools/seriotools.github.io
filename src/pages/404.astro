@@ -1,0 +1,66 @@
+---
+const title = 'Page not found | SerioTools';
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex,follow" />
+        <meta
+            name="description"
+            content="The requested SerioTools page could not be found."
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <title>{title}</title>
+    </head>
+    <body class="error-page">
+        <main>
+            <p class="eyebrow">404</p>
+            <h1>That page is not here.</h1>
+            <p>Choose a language to return to the demonstration.</p>
+            <nav aria-label="Choose a language">
+                <a class="button" href="/">
+                    English
+                </a>
+                <a class="button" href="/de/" lang="de">
+                    Deutsch
+                </a>
+                <a class="button" href="/sl/" lang="sl">
+                    Slovenščina
+                </a>
+            </nav>
+        </main>
+    </body>
+</html>
+
+<style>
+    .error-page {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        background: #f4f1ea;
+        color: #101820;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+    }
+    h1 {
+        font-size: clamp(2.5rem, 8vw, 6rem);
+        margin: 0;
+    }
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-block-start: 2rem;
+    }
+    .button {
+        background: #101820;
+        color: white;
+        padding: 0.8rem 1rem;
+        text-decoration: none;
+    }
+</style>
