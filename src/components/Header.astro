@@ -49,6 +49,18 @@ const copy = content[locale];
         <div class="header-actions">
             <LanguageSelector {locale} {page} label={copy.languageLabel} />
             <button
+                class="theme-toggle"
+                type="button"
+                aria-pressed="false"
+                aria-label={copy.useDarkTheme}
+                data-light-label={copy.useLightTheme}
+                data-dark-label={copy.useDarkTheme}
+            >
+                <span class="theme-toggle-track" aria-hidden="true">
+                    <span class="theme-toggle-thumb"></span>
+                </span>
+            </button>
+            <button
                 class="menu-toggle"
                 type="button"
                 aria-expanded="false"
@@ -66,12 +78,25 @@ const copy = content[locale];
 </header>
 
 <script>
+    import { createThemeController } from '../lib/theme-controller.mjs';
+
     document.documentElement.classList.add('js');
 
     const header = document.querySelector<HTMLElement>('.site-header');
     const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
     const navigation = header?.querySelector<HTMLElement>('.main-nav');
     const compact = matchMedia('(max-width: 48rem)');
+    const themeToggle =
+        header?.querySelector<HTMLButtonElement>('.theme-toggle');
+    if (themeToggle) {
+        createThemeController({
+            root: document.documentElement,
+            toggle: themeToggle,
+            darkScheme: matchMedia('(prefers-color-scheme: dark)'),
+            win: window,
+            doc: document,
+        });
+    }
 
     const setMenu = (open: boolean, returnFocus = false) => {
         if (!toggle || !navigation) return;

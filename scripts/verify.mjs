@@ -1,5 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { runInNewContext } from 'node:vm';
+import { createThemeController } from '../src/lib/theme-controller.mjs';
 
 const dist = 'dist';
 let passed = true;
@@ -110,6 +112,11 @@ check(
 const home = read(join(dist, 'index.html'));
 const headerSource = read('src/components/Header.astro');
 const cssSource = read('src/styles/global.css');
+const layoutSource = read('src/layouts/Layout.astro');
+const notFoundSource = read('src/pages/404.astro');
+const builtPages = [...allPages, '404.html'].map((path) =>
+    read(join(dist, path)),
+);
 check(
     'compact menu exposes accessible state and controls',
     home.includes('class="menu-toggle"') &&
@@ -138,6 +145,7 @@ check(
     'responsive CSS covers touch, compact, pointer, reduced-motion, and ultra-wide layouts',
     [
         '@media (max-width: 48rem)',
+        '@media (max-width: 22rem)',
         '@media (pointer: coarse)',
         '@media (hover: hover) and (pointer: fine)',
         '@media (min-width: 90rem)',
@@ -145,6 +153,266 @@ check(
         'min-height: 2.75rem',
         'min-width: 2.75rem',
     ].every((value) => cssSource.includes(value)),
+);
+check(
+    'dual theme tokens use native scheme integration',
+    cssSource.includes('color-scheme: light dark') &&
+        cssSource.includes('light-dark(#101820, #f4f1ea)') &&
+        cssSource.includes(":root[data-theme='light']") &&
+        cssSource.includes(":root[data-theme='dark']"),
+);
+check(
+    'theme bootstrap runs in the head with guarded allow-listed storage',
+    layoutSource.indexOf("localStorage.getItem('theme')") <
+        layoutSource.indexOf('</head>') &&
+        layoutSource.includes("t==='light'||t==='dark'") &&
+        layoutSource.includes('try{') &&
+        layoutSource.includes('catch{}'),
+);
+check(
+    'theme control is localized and exposes accessible state',
+    allPages.every((path) => {
+        const html = read(join(dist, path));
+        return (
+            html.includes('class="theme-toggle"') &&
+            html.includes('aria-pressed="false"') &&
+            html.includes('data-light-label=') &&
+            html.includes('data-dark-label=')
+        );
+    }) &&
+        read(join(dist, 'index.html')).includes(
+            'data-dark-label="Use dark theme"',
+        ) &&
+        read(join(dist, 'de/index.html')).includes(
+            'data-dark-label="Dunkles Design verwenden"',
+        ) &&
+        read(join(dist, 'sl/index.html')).includes(
+            'data-dark-label="Uporabi temno temo"',
+        ),
+);
+check(
+    'theme control is hidden without JavaScript and enabled progressively',
+    cssSource.includes('.theme-toggle {') &&
+        cssSource.includes('display: none') &&
+        cssSource.includes('.js .theme-toggle') &&
+        cssSource.includes('display: grid'),
+);
+check(
+    'every built document has bootstrap and exact dual-scheme metadata in head',
+    builtPages.every((html) => {
+        const head = html.slice(
+            html.indexOf('<head>'),
+            html.indexOf('</head>'),
+        );
+        const metas = [
+            ...head.matchAll(
+                /<meta name="theme-color" content="([^"]+)" media="([^"]+)"\s*\/?>/g,
+            ),
+        ];
+        return (
+            head.includes("localStorage.getItem('theme')") &&
+            head.includes("t==='light'||t==='dark'") &&
+            head.includes('try{') &&
+            head.includes('catch{}') &&
+            metas.length === 2 &&
+            metas.some(
+                ([, content, media]) =>
+                    content === '#f4f1ea' &&
+                    media === '(prefers-color-scheme: light)',
+            ) &&
+            metas.some(
+                ([, content, media]) =>
+                    content === '#101820' &&
+                    media === '(prefers-color-scheme: dark)',
+            )
+        );
+    }),
+);
+check(
+    'standalone 404 restores and renders both themes',
+    notFoundSource.includes("localStorage.getItem('theme')") &&
+        notFoundSource.includes('color-scheme: light dark') &&
+        notFoundSource.includes('light-dark(') &&
+        notFoundSource.includes(":global(:root[data-theme='dark'])"),
+);
+check(
+    'scheme-safe contrast tokens and reduced-motion override are present',
+    cssSource.includes('--signal-ink: #101820') &&
+        cssSource.includes('--hero-mark-background: light-dark(') &&
+        cssSource.includes('color: var(--signal-ink)') &&
+        cssSource.includes('@media (prefers-reduced-motion: reduce)'),
+);
+
+const bootstrap = home.match(
+    /<script>(\(\(\)=>\{try\{const t=localStorage[\s\S]*?\}\)\(\);)<\/script>/,
+)?.[1];
+const runBootstrap = (storage) => {
+    const root = { dataset: {} };
+    const metas = [{ setAttribute() {} }, { setAttribute() {} }];
+    runInNewContext(bootstrap, {
+        localStorage: storage,
+        document: {
+            documentElement: root,
+            querySelectorAll: () => metas,
+        },
+    });
+    return root.dataset.theme ?? null;
+};
+check(
+    'bootstrap handles missing, valid, invalid, and unavailable storage',
+    Boolean(bootstrap) &&
+        runBootstrap({ getItem: () => null }) === null &&
+        runBootstrap({ getItem: () => 'light' }) === 'light' &&
+        runBootstrap({ getItem: () => 'dark' }) === 'dark' &&
+        runBootstrap({ getItem: () => 'sepia' }) === null &&
+        runBootstrap({
+            getItem: () => {
+                throw new Error('denied');
+            },
+        }) === null,
+);
+
+const makeHarness = ({
+    systemDark = false,
+    initialTheme,
+    writeFails = false,
+    storageInaccessible = false,
+} = {}) => {
+    const listeners = { click: [], change: [], storage: [] };
+    const attrs = {};
+    const writes = [];
+    const storage = {
+        setItem(key, value) {
+            if (writeFails) throw new Error('denied');
+            writes.push([key, value]);
+        },
+    };
+    const root = { dataset: {} };
+    if (initialTheme) root.dataset.theme = initialTheme;
+    const toggle = {
+        dataset: { lightLabel: 'Use light theme', darkLabel: 'Use dark theme' },
+        setAttribute: (key, value) => (attrs[key] = value),
+        addEventListener: (type, fn) => listeners[type].push(fn),
+    };
+    const darkScheme = {
+        matches: systemDark,
+        addEventListener: (type, fn) => listeners[type].push(fn),
+    };
+    const metas = [
+        { media: '(prefers-color-scheme: light)', content: '#f4f1ea' },
+        { media: '(prefers-color-scheme: dark)', content: '#101820' },
+    ];
+    const win = {
+        localStorage: storage,
+        addEventListener: (type, fn) => listeners[type].push(fn),
+    };
+    if (storageInaccessible) {
+        Object.defineProperty(win, 'localStorage', {
+            get() {
+                throw new Error('denied');
+            },
+        });
+    }
+    createThemeController({
+        root,
+        toggle,
+        darkScheme,
+        win,
+        doc: { querySelectorAll: () => metas },
+    });
+    return {
+        root,
+        attrs,
+        writes,
+        metas,
+        storage,
+        click: () => listeners.click[0](),
+        system: (dark) => {
+            darkScheme.matches = dark;
+            listeners.change[0]();
+        },
+        storageEvent: (event) => listeners.storage[0](event),
+    };
+};
+
+const lightHarness = makeHarness();
+const darkHarness = makeHarness({ systemDark: true });
+const clicks = makeHarness();
+clicks.click();
+const firstClick =
+    clicks.root.dataset.theme === 'dark' &&
+    clicks.attrs['aria-pressed'] === 'true' &&
+    clicks.attrs['aria-label'] === 'Use light theme' &&
+    clicks.metas.every((meta) => meta.content === '#101820') &&
+    clicks.writes.at(-1)?.[1] === 'dark';
+clicks.click();
+const secondClick =
+    clicks.root.dataset.theme === 'light' &&
+    clicks.attrs['aria-pressed'] === 'false' &&
+    clicks.attrs['aria-label'] === 'Use dark theme' &&
+    clicks.metas.every((meta) => meta.content === '#f4f1ea') &&
+    clicks.writes.at(-1)?.[1] === 'light';
+check(
+    'system defaults and two toggle interactions update all state',
+    lightHarness.attrs['aria-pressed'] === 'false' &&
+        darkHarness.attrs['aria-pressed'] === 'true' &&
+        firstClick &&
+        secondClick,
+);
+
+const failedWrite = makeHarness({ writeFails: true });
+failedWrite.click();
+failedWrite.system(false);
+const systemOnly = makeHarness();
+systemOnly.system(true);
+check(
+    'failed writes retain explicit state while system-only state follows changes',
+    failedWrite.root.dataset.theme === 'dark' &&
+        systemOnly.root.dataset.theme === undefined &&
+        systemOnly.attrs['aria-pressed'] === 'true',
+);
+
+const synced = makeHarness();
+synced.storageEvent({
+    key: 'theme',
+    newValue: 'dark',
+    storageArea: synced.storage,
+});
+const validSet = synced.root.dataset.theme === 'dark';
+synced.storageEvent({
+    key: 'theme',
+    newValue: 'sepia',
+    storageArea: synced.storage,
+});
+const invalidIgnored = synced.root.dataset.theme === 'dark';
+synced.storageEvent({ key: 'theme', newValue: 'light', storageArea: {} });
+const otherStorageIgnored = synced.root.dataset.theme === 'dark';
+synced.storageEvent({
+    key: 'theme',
+    newValue: null,
+    storageArea: synced.storage,
+});
+const removeClears = synced.root.dataset.theme === undefined;
+synced.storageEvent({
+    key: 'theme',
+    newValue: 'dark',
+    storageArea: synced.storage,
+});
+synced.storageEvent({ key: null, newValue: null, storageArea: synced.storage });
+const inaccessible = makeHarness({ storageInaccessible: true });
+inaccessible.storageEvent({
+    key: 'theme',
+    newValue: 'dark',
+    storageArea: {},
+});
+check(
+    'cross-tab synchronization handles valid set, remove, clear, invalid, and foreign events',
+    validSet &&
+        invalidIgnored &&
+        otherStorageIgnored &&
+        removeClears &&
+        synced.root.dataset.theme === undefined &&
+        inaccessible.root.dataset.theme === undefined,
 );
 
 const sitemap = walk(dist)

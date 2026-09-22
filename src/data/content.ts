@@ -14,6 +14,8 @@ interface SiteContent {
     languageLabel: string;
     openMenu: string;
     closeMenu: string;
+    useLightTheme: string;
+    useDarkTheme: string;
     nav: Record<PageKey, string>;
     footer: string;
     cta: string;
@@ -27,6 +29,8 @@ export const content: Record<Locale, SiteContent> = {
         languageLabel: 'Language',
         openMenu: 'Open menu',
         closeMenu: 'Close menu',
+        useLightTheme: 'Use light theme',
+        useDarkTheme: 'Use dark theme',
         nav: {
             home: 'Home',
             about: 'About',
@@ -120,6 +124,8 @@ export const content: Record<Locale, SiteContent> = {
         languageLabel: 'Sprache',
         openMenu: 'Menü öffnen',
         closeMenu: 'Menü schließen',
+        useLightTheme: 'Helles Design verwenden',
+        useDarkTheme: 'Dunkles Design verwenden',
         nav: {
             home: 'Start',
             about: 'Über uns',
@@ -213,6 +219,8 @@ export const content: Record<Locale, SiteContent> = {
         languageLabel: 'Jezik',
         openMenu: 'Odpri meni',
         closeMenu: 'Zapri meni',
+        useLightTheme: 'Uporabi svetlo temo',
+        useDarkTheme: 'Uporabi temno temo',
         nav: {
             home: 'Domov',
             about: 'O nas',

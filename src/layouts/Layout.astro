@@ -15,12 +15,14 @@ interface Props {
 }
 
 const { locale, page, title, description, noindex = false } = Astro.props;
+const themeBootstrap = `(()=>{try{const t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',t==='dark'?'#101820':'#f4f1ea'))}}catch{}})();`;
 ---
 
 <!doctype html>
 <html lang={languageTags[locale]}>
     <head>
         <SeoHead {locale} {page} {title} {description} {noindex} />
+        <script is:inline set:html={themeBootstrap}></script>
     </head>
     <body>
         <a class="skip-link" href="#main">

@@ -1,5 +1,6 @@
 ---
 const title = 'Page not found | SerioTools';
+const themeBootstrap = `(()=>{try{const t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',t==='dark'?'#101820':'#f4f1ea'))}}catch{}})();`;
 ---
 
 <!doctype html>
@@ -7,6 +8,17 @@ const title = 'Page not found | SerioTools';
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light dark" />
+        <meta
+            name="theme-color"
+            content="#f4f1ea"
+            media="(prefers-color-scheme: light)"
+        />
+        <meta
+            name="theme-color"
+            content="#101820"
+            media="(prefers-color-scheme: dark)"
+        />
         <meta name="robots" content="noindex,follow" />
         <meta
             name="description"
@@ -14,6 +26,7 @@ const title = 'Page not found | SerioTools';
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <title>{title}</title>
+        <script is:inline set:html={themeBootstrap}></script>
     </head>
     <body class="error-page">
         <main>
@@ -36,13 +49,25 @@ const title = 'Page not found | SerioTools';
 </html>
 
 <style>
+    :global(:root) {
+        color-scheme: light dark;
+        --ink: light-dark(#101820, #f4f1ea);
+        --paper: light-dark(#f4f1ea, #101820);
+        --surface: light-dark(#fffdf7, #1c2730);
+    }
+    :global(:root[data-theme='light']) {
+        color-scheme: light;
+    }
+    :global(:root[data-theme='dark']) {
+        color-scheme: dark;
+    }
     .error-page {
         min-height: 100svh;
         display: grid;
         place-items: center;
         padding: 2rem;
-        background: #f4f1ea;
-        color: #101820;
+        background: var(--paper);
+        color: var(--ink);
         font-family: system-ui, sans-serif;
         text-align: center;
     }
@@ -58,9 +83,17 @@ const title = 'Page not found | SerioTools';
         margin-block-start: 2rem;
     }
     .button {
-        background: #101820;
-        color: white;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        display: inline-grid;
+        place-items: center;
+        background: var(--ink);
+        color: var(--surface);
         padding: 0.8rem 1rem;
         text-decoration: none;
+    }
+    :focus-visible {
+        outline: 3px solid color-mix(in oklab, var(--ink), #d8ff55 55%);
+        outline-offset: 4px;
     }
 </style>
